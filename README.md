@@ -3,7 +3,7 @@ title: 3/4 MERN: Creating a Node.js, Express, & MongoDB Backend From Scratch
 published: false
 description: A step-by-step walkthrough for a JavaScript-only backend
 tags: nosql, MERN, node, express, mongodb, backend
-//cover_image: https://direct_url_to_image.jpg
+//cover_image: https://direct_URL_to_image.jpg
 ---
 
 # Creating a Node.js, Express, & MongoDB Backend From Scratch
@@ -120,7 +120,7 @@ connection.once('open', () => {
 })
 ```
 
-I realize that's a lot of unexplained code there, but we'll chat through it. The `connect` function accepts two arguments: the first is the the URL which points at our actual database on Atlas, and the second is a configuration object for how it should talk to that database. It's not highly important to memorize the details, but there have been some updates to both Mongoose and the Atlas setup which caused bumps in the road, so these configurations are just some standard fixes to make sure the communications still go smoothly. 
+I realize that's a lot of unexplained code there, but we'll chat through it. The `connect` function accepts two arguments: the first is the the URI which points at our actual database on Atlas, and the second is a configuration object for how it should talk to that database. It's not highly important to memorize the details, but there have been some updates to both Mongoose and the Atlas setup which caused bumps in the road, so these configurations are just some standard fixes to make sure the communications still go smoothly. 
 
 The second part, where we grab `mongoose.connection` out of the Mongoose library, is simply a listener. It listens your `connect` function, and throws up a little message on the server logs once that connection is successful. You can log whatever message you like. Maybe you just a put a Shakespeare quote on there or something. The world's your oyster. 
 
@@ -129,20 +129,39 @@ Okay, so you may have noticed that `source` is not defined anywhere in our code 
 ![Atlas Website Screenshot](assets/atlas-example.png) 
 
 
-Click the "CONNECT" button. Add your current IP address (since you will be making requests from your own computer), then make up whatever name and password you want to use for your secret connection URL. This doesn't really have to be that secure, since we are just using it to learn. I'm going to set mine to something pretty simple; username: "Hal", password: "Hal". Whatever you pick, keep ahold of it as we will use it. Click the "Choose a connection method" button. 
+Click the "CONNECT" button. Add your current IP address (since you will be making requests from your own computer), then make up whatever name and password you want to use for your secret connection URI. This doesn't really have to be that secure, since we are just using it to learn. I'm going to set mine to something pretty simple; username: "Hal", password: "Hal". Whatever you pick, keep ahold of it as we will use it. Click the "Choose a connection method" button. 
 
-We haven't installed the mongo shell or MongoDB Compass, so let's just pick "Connect your application". After clicking that you'll see the URL we want! It'll look something like this: `mongodb+srv://Hal:<password>@testercluster.m7k7n.mongodb.net/<dbname>?retryWrites=true&w=majority`
+We haven't installed the mongo shell or MongoDB Compass, so let's just pick "Connect your application". After clicking that you'll see the URI we want! It'll look something like this: 
 
-Fill in the password and whatever you named your DB (I named mine TesterCluster). Now, we could just pop that URL into the `connect` function, and it would work just fine, but as was mentioned at the beginning, you shouldn't actually put your credentials and/or DB connection secrets out there in the open. So now we get to use the `dotenv` library.
+`mongodb+srv://Hal:<password>@testercluster.m7k7n.mongodb.net/<dbname>?retryWrites=true&w=majority`
+
+Fill in the password and whatever you named your DB (I named mine TesterCluster). Now, we could just pop that URI into the `connect` function, and it would work just fine, but as was mentioned at the beginning, you shouldn't actually put your credentials and/or DB connection secrets out there in the open. So now we get to use the `dotenv` library. Add this to server.js to do so:
 
 ```javascript
 require('dotenv').config()
 ```
 
-Calling on `config()` allows it to set up using the out-of-the-box configurations, which is totally fine for our purposes. With dotenv required, we can now create a file in our directory called `.env` which will house the new URL we just grabbed. The inside of our `.env` file just has a single line:
+Calling on `config()` allows it to set up using the out-of-the-box configurations, which is totally fine for our purposes. With dotenv required, we can now create a file in our directory called `.env` which will house the new URI we just grabbed. The inside of our `.env` file just has a single line:
 
 `ATLAS_CONNECTION = mongodb+srv://Hal:<Hal@testercluster.m7k7n.mongodb.net/TesterCluster?retryWrites=true&w=majority`
 
-Once that is saved, the dotenv library will read your .env file and add a key of "ATLAS_CONNECTION" to your process.env object, with the value of the correct URL there. 
+Once that is saved, the dotenv library will read your .env file and add a key of "ATLAS_CONNECTION" to your process.env object, with the value of the correct URI there. Add this line into your server.js file:
 
-Reminder! You can log any of this stuff inside of your server.js file to check out what it looks like. If you're curious what process.env looks like on a whole, console.log it!
+```javascript
+const source = process.env.ATLAS_CONNECTION
+```
+
+Now for the moment of truth. Head to your terminal and enter the command `nodemon server`. If everything is set up correctly, you should see some startup messages from nodemon, and then your own console log, "DB connected." Or a Shakespeare quote. Whatever you went with.
+
+
+
+Now we need to set up our express app to serve our data locally.
+
+```javascript
+const PORT = process.env.PORT || 5000
+app.listen(PORT, ()=>{
+    console.log(`Successfully served on port: ${PORT}.`);
+})
+```
+
+This is just saying, "check if our process.env object has specified a port to use, and if not, default to using port 5000." Once you hit save, you should see the nodemon server reload in your terminal, and the second message confirming that our local server is working too. 

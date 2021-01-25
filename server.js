@@ -12,7 +12,12 @@ app.use(express.json())
 // the messenger between our app and our database
 const mongoose = require('mongoose')
 
+// allow us to hide our connection secret in the process.env object
+require('dotenv').config()
+
 // establish connection & give yourself a message so you know when its complete
+const source = process.env.ATLAS_CONNECTION
+
 mongoose.connect(source, {
     useNewUrlParser: true,
     useCreateIndex: true,
@@ -23,4 +28,7 @@ connection.once('open', () => {
     console.log("DB connected.");
 })
 
-`mongodb+srv://Hal:Hal@testercluster.m7k7n.mongodb.net/TesterCluster?retryWrites=true&w=majority`
+const PORT = process.env.PORT || 5000
+app.listen(PORT, ()=>{
+    console.log(`Successfully served on port: ${PORT}.`);
+})
