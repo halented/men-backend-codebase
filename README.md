@@ -60,7 +60,7 @@ Here are the other packages you should install. With each you can just run `yarn
 - [nodemon](https://nodemon.io/)
     - We will use nodemon to actually serve the backend routes locally on whatever port we choose. If we were to choose port 5000, say, we can run nodemon to have our app served on http://localhost:5000/
 
-## Establishing a connection to MongoDB
+## Establishing a connection to MongoDB / Establishing an Express App
 
 There are different ways to use MongoDB, but using the Atlas website gives you a pretty clear and easy tools for interacting with your data, and you get one free database to fiddle around with so you don't have to pay to use it for our purposes. 
 
@@ -68,6 +68,56 @@ First, set up an account. Head to https://www.mongodb.com/cloud/atlas & fill out
 
 Under provider and region, select Google Cloud, and then pick whichever region is closest to you. This is where the server is located, so the closer you get the less latency between requests. Make sure your Cluster Tier is set to "M0 Sandbox", name it whatever you'd like, and click Create Cluster. 
 
-You can just let that sit while it creates -- don't mess with the webpage or close it until it's done. While you're waiting, maybe listen to a song. Have some water. Stretch your back & unfocus your eyes for a second, I hear you're supposed to do that.
+You can just let that sit while it creates -- don't mess with the webpage or close it until it's done. While you're waiting, maybe listen to a song. Have some water. Stretch your back & unfocus your eyes for a second.
 
 Okay, now it's time to write some code. 
+
+In the topmost directory of your project, create a file called `server.js`. This is will act as the main hub for your app and its connections to the DB. The first thing we need to do is get Express in there. Here's what it looks like to actually establish an Exress app:
+
+```javascript
+const express = require('express')
+const app = express()
+```
+
+The envoking parentheses following express call a constructor method from inside the Express library which builds the boilerplate for our app. Reminder! Express is a framework using NodeJs. It's the most important part of allowing us to use JavaScript as a backend server. 
+
+Now that we've actually got an app to fiddle around with, let's tell that app that it should be allowed to accept requests from outside sources by handing it the CORS library. 
+
+```javascript
+const cors = require('cors')
+app.use(cors())
+```
+
+Next we will tell the express app that it should expect to serve and receive data in the JSON format. Our MongoDB backend will take care of that for us, so we don't need to configure it on that end, just this one. 
+
+```javascript
+app.use(express.json())
+```
+
+Okay, the next thing is to actually connect your DB with your Express app. Here we have a group of libraries coming together to make ends meet. Firstly, we need to get Mongoose in there to usher the data back and forth for us -- we can think of Mongoose as a messenger which speaks to our Express app, travels over to MongoDB, delivers some info, then carries Mongo's response back to the app. Begin by requiring it -- 
+
+```javascript
+const mongoose = require('mongoose')
+```
+
+and then calling upon the `connect` function to open a connection.
+
+
+```javascript
+mongoose.connect(source, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true
+})
+
+const connection = mongoose.connection
+connection.once('open', () => {
+    console.log("DB connected.");
+})
+```
+
+I realize that's a lot of unexplained code there, but we'll chat through it. The `connect` function accepts two arguments: the first is the the URL which points at our actual database on Atlas, and the second is a configuration object for how it should talk to that database. It's not highly important to memorize the details, but there have been some updates to both Mongoose and the Atlas setup which caused bumps in the road, so these configurations are just some standard fixes to make sure the communications still go smoothly. 
+
+The second part, where we grab `mongoose.connection` out of the Mongoose library, is simply a listener. It listens your `connect` function, and throws up a little message on the server logs once that connection is successful. You can log whatever message you like. Maybe you just a put a Shakespeare quote on there or something. The world's your oyster. 
+
+Okay, so you may have noticed that `source` is not defined anywhere in our code yet, so let's fix that. 
