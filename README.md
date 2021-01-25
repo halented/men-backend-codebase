@@ -1,10 +1,12 @@
 ---
 title: 3/4 MERN: Creating a Node.js, Express, & MongoDB Backend From Scratch
 published: false
-description: This post is what you think it is
+description: A step-by-step walkthrough for a JavaScript-only backend
 tags: nosql, MERN, node, express, mongodb, backend
 //cover_image: https://direct_url_to_image.jpg
 ---
+
+# Creating a Node.js, Express, & MongoDB Backend From Scratch
 
 I've been a big fan of React for a while, but that part of the MERN stack isn't involved in this post. If anyone does have a specific question about how to the backend we are about to build up with a React frontend, please leave a comment and I would be happy to make a new post with that information as well.
 
@@ -19,6 +21,8 @@ Here's the overview of the steps we're covering in this post:
 5. Creating A Model
 6. Creating CRUD routes for that model
 7. Testing your code out with an API tester like Postman or Insomnia
+
+The *fully complete codebase* for this project is public at [THIS](https://github.com/halented/men-backend-codebase) github repo, if you would rather just poke around than reading this whole walkthrough. 
 
 It should be a good time. This post will assume that you have a medium level of JavaScript/programming capabilities -- that is, if you are just starting out with learning JS, this post might knock you on your ass, so bookmark it for later and revisit when you're pretty good with the basics. This post also assumes you have NodeJs installed on your computer already. You can check if you do by running the command `node -v` in your terminal. If it does not spit out a version for you, please install Node from [HERE](https://nodejs.org/en/) before beginning this walkthrough. 
 
@@ -122,4 +126,23 @@ The second part, where we grab `mongoose.connection` out of the Mongoose library
 
 Okay, so you may have noticed that `source` is not defined anywhere in our code yet, so let's fix that. Head on over to the Atlas website again. It should have had plenty of time to finish setting up, so hopefully you see a screen that looks something like this:
 
-![Atlas Website Screenshot]('./assets/atlas-example.png') 
+![Atlas Website Screenshot](assets/atlas-example.png) 
+
+
+Click the "CONNECT" button. Add your current IP address (since you will be making requests from your own computer), then make up whatever name and password you want to use for your secret connection URL. This doesn't really have to be that secure, since we are just using it to learn. I'm going to set mine to something pretty simple; username: "Hal", password: "Hal". Whatever you pick, keep ahold of it as we will use it. Click the "Choose a connection method" button. 
+
+We haven't installed the mongo shell or MongoDB Compass, so let's just pick "Connect your application". After clicking that you'll see the URL we want! It'll look something like this: `mongodb+srv://Hal:<password>@testercluster.m7k7n.mongodb.net/<dbname>?retryWrites=true&w=majority`
+
+Fill in the password and whatever you named your DB (I named mine TesterCluster). Now, we could just pop that URL into the `connect` function, and it would work just fine, but as was mentioned at the beginning, you shouldn't actually put your credentials and/or DB connection secrets out there in the open. So now we get to use the `dotenv` library.
+
+```javascript
+require('dotenv').config()
+```
+
+Calling on `config()` allows it to set up using the out-of-the-box configurations, which is totally fine for our purposes. With dotenv required, we can now create a file in our directory called `.env` which will house the new URL we just grabbed. The inside of our `.env` file just has a single line:
+
+`ATLAS_CONNECTION = mongodb+srv://Hal:<Hal@testercluster.m7k7n.mongodb.net/TesterCluster?retryWrites=true&w=majority`
+
+Once that is saved, the dotenv library will read your .env file and add a key of "ATLAS_CONNECTION" to your process.env object, with the value of the correct URL there. 
+
+Reminder! You can log any of this stuff inside of your server.js file to check out what it looks like. If you're curious what process.env looks like on a whole, console.log it!

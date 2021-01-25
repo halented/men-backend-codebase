@@ -22,3 +22,5 @@ const connection = mongoose.connection
 connection.once('open', () => {
     console.log("DB connected.");
 })
+
+`mongodb+srv://Hal:Hal@testercluster.m7k7n.mongodb.net/TesterCluster?retryWrites=true&w=majority`
