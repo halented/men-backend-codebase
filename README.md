@@ -1,11 +1,3 @@
----
-title: 3/4 MERN: Creating a Node.js, Express, & MongoDB Backend From Scratch
-published: false
-description: A step-by-step walkthrough for a JavaScript-only backend
-tags: nosql, MERN, node, express, mongodb, backend
-//cover_image: https://direct_URL_to_image.jpg
----
-
 # Creating a Node.js, Express, & MongoDB Backend From Scratch
 
 *The fully complete codebase for this project is public at [THIS](https://github.com/halented/men-backend-codebase) github repo, if you would rather just poke around than reading this whole walkthrough.*
