@@ -8,21 +8,23 @@ tags: nosql, MERN, node, express, mongodb, backend
 
 # Creating a Node.js, Express, & MongoDB Backend From Scratch
 
+*The fully complete codebase for this project is public at [THIS](https://github.com/halented/men-backend-codebase) github repo, if you would rather just poke around than reading this whole walkthrough.*
+
+__
+
 I've been a big fan of React for a while, but that part of the MERN stack isn't involved in this post. If anyone does have a specific question about how to the backend we are about to build up with a React frontend, please leave a comment and I would be happy to make a new post with that information as well.
 
 Since this is focused on MERN without the R, the acronym we'll use for this post is MEN. Why not. Finally, MEN will be useful! 😄
 
-Here's the overview of the steps we're covering in this post: 
+Here's the overview of the two part series. The steps in bold will be covered in this first installment: 
 
-1. Initializing a folder with a package manager
-2. Adding necessary dependencies (and discussing the purposes of each)
-3. Establishing a connection to MongoDB through [Atlas](https://www.mongodb.com/cloud/atlas)
-4. Establishing an Express application & selecting the local port on which to run it
+1. **Initializing a folder with a package manager**
+2. **Adding necessary dependencies (and discussing the purposes of each)**
+3. **Establishing a connection to MongoDB through [Atlas](https://www.mongodb.com/cloud/atlas)**
+4. **Establishing an Express application & selecting the local port on which to run it**
 5. Creating A Model
 6. Creating CRUD routes for that model
 7. Testing your code out with an API tester like Postman or Insomnia
-
-The *fully complete codebase* for this project is public at [THIS](https://github.com/halented/men-backend-codebase) github repo, if you would rather just poke around than reading this whole walkthrough. 
 
 It should be a good time. This post will assume that you have a medium level of JavaScript/programming capabilities -- that is, if you are just starting out with learning JS, this post might knock you on your ass, so bookmark it for later and revisit when you're pretty good with the basics. This post also assumes you have NodeJs installed on your computer already. You can check if you do by running the command `node -v` in your terminal. If it does not spit out a version for you, please install Node from [HERE](https://nodejs.org/en/) before beginning this walkthrough. 
 
@@ -56,7 +58,7 @@ Here are the other packages you should install. With each you can just run `yarn
     - CORS stands for "cross-origin resource sharing" and the package allows you to configure which domains are trusted and which ones are not. We will be making requests to our backend from a separate origin (that's where insomnia or postman will come into play), so we need to install CORS to allow us to do that. 
 
 - [dotenv](https://www.npmjs.com/package/dotenv) 
-    - We are going to need a sort of secret key to access our MongoDB on the Atlas website. If you plan on uploading your project to Github or some other code sharing site, you *shouldn't* upload your secret key as well. Best practices dictate that you should keep that kind of information in a local environment variable. The dotenv package will allow us to add a file called `.env` to our project, put our secret key in there, and load it into other files where necessary. The library will configure environment variables to your [process.env](https://codeburst.io/process-env-what-it-is-and-why-when-how-to-use-it-effectively-505d0b2831e7?gi=ce14aad160a0) object, which makes it global for your project. We'll also avoid pushing the `.env` to Github by adding it to a `.gitignore` file. 
+    - We are going to need a sort of secret key to access our MongoDB database on the Atlas website. If you plan on uploading your project to Github or some other code sharing site, you *shouldn't* upload your secret key as well. Best practices dictate that you should keep that kind of information in a local environment variable. The dotenv package will allow us to add a file called `.env` to our project, put our secret key in there, and load it into other files where necessary. The library will configure environment variables to your [process.env](https://codeburst.io/process-env-what-it-is-and-why-when-how-to-use-it-effectively-505d0b2831e7?gi=ce14aad160a0) object, which makes it global for your project.  We aren't going to go through uploading this project to Github, but if you are doing that, you'll want to add the `.env` file to your `.gitignore` list.
 
 - [mongoose](https://mongoosejs.com/docs/index.html)
     - Mongoose allows us to: map the model attributes and requirements to the database, create new collections and documents in our database, and make queries to retrieve info from the database.
@@ -76,14 +78,14 @@ You can just let that sit while it creates -- don't mess with the webpage or clo
 
 Okay, now it's time to write some code. 
 
-In the topmost directory of your project, create a file called `server.js`. This is will act as the main hub for your app and its connections to the DB. The first thing we need to do is get Express in there. Here's what it looks like to actually establish an Exress app:
+In the topmost directory of your project, create a file called `server.js`. This is will act as the main hub for your app and its connections to the DB. The first thing we need to do is get Express in there. Here's what it looks like to actually establish an Express app:
 
 ```javascript
 const express = require('express')
 const app = express()
 ```
 
-The envoking parentheses following express call a constructor method from inside the Express library which builds the boilerplate for our app. Reminder! Express is a framework using NodeJs. It's the most important part of allowing us to use JavaScript as a backend server. 
+The invoking parentheses following express call a constructor method from inside the Express library which builds the boilerplate for our app. Reminder! Express is a framework using NodeJs. It's the most important part of allowing us to use JavaScript as a backend server. 
 
 Now that we've actually got an app to fiddle around with, let's tell that app that it should be allowed to accept requests from outside sources by handing it the CORS library. 
 
@@ -120,22 +122,22 @@ connection.once('open', () => {
 })
 ```
 
-I realize that's a lot of unexplained code there, but we'll chat through it. The `connect` function accepts two arguments: the first is the the URI which points at our actual database on Atlas, and the second is a configuration object for how it should talk to that database. It's not highly important to memorize the details, but there have been some updates to both Mongoose and the Atlas setup which caused bumps in the road, so these configurations are just some standard fixes to make sure the communications still go smoothly. 
+Okay, that's a chunk of code, so let's chat through it. The `connect` function accepts two arguments: the first is the the URI which points at our actual database on Atlas, and the second is a configuration object for how it should talk to that database. It's not highly important to memorize the details of the config object, but there have been some updates to both Mongoose and the Atlas setup which caused bumps in the road, so these configurations are just some standard fixes to make sure the communications still go smoothly. 
 
 The second part, where we grab `mongoose.connection` out of the Mongoose library, is simply a listener. It listens your `connect` function, and throws up a little message on the server logs once that connection is successful. You can log whatever message you like. Maybe you just a put a Shakespeare quote on there or something. The world's your oyster. 
 
-Okay, so you may have noticed that `source` is not defined anywhere in our code yet, so let's fix that. Head on over to the Atlas website again. It should have had plenty of time to finish setting up, so hopefully you see a screen that looks something like this:
+You may have noticed that `source` is not defined anywhere in our code yet, so let's fix that. Head on over to the Atlas website again. It should have had plenty of time to finish setting up, so hopefully you see a screen that looks something like this:
 
 ![Atlas Website Screenshot](assets/atlas-example.png) 
 
 
 Click the "CONNECT" button. Add your current IP address (since you will be making requests from your own computer), then make up whatever name and password you want to use for your secret connection URI. This doesn't really have to be that secure, since we are just using it to learn. I'm going to set mine to something pretty simple; username: "Hal", password: "Hal". Whatever you pick, keep ahold of it as we will use it. Click the "Choose a connection method" button. 
 
-We haven't installed the mongo shell or MongoDB Compass, so let's just pick "Connect your application". After clicking that you'll see the URI we want! It'll look something like this: 
+We won't be installing the mongo shell or MongoDB Compass, so let's just pick "Connect your application". After clicking that you'll see the URI we want! It'll look something like this: 
 
-`mongodb+srv://Hal:<password>@testercluster.m7k7n.mongodb.net/<dbname>?retryWrites=true&w=majority`
+`mongodb+srv://<username>:<password>@testercluster.m7k7n.mongodb.net/<dbname>?retryWrites=true&w=majority`
 
-Fill in the password and whatever you named your DB (I named mine TesterCluster). Now, we could just pop that URI into the `connect` function, and it would work just fine, but as was mentioned at the beginning, you shouldn't actually put your credentials and/or DB connection secrets out there in the open. So now we get to use the `dotenv` library. Add this to server.js to do so:
+Fill in the username/password and whatever you named your DB (I named mine TesterCluster). Now, we *could* just pop that URI into the `connect` function, and it would work just fine, but as was mentioned at the beginning, you shouldn't actually put your credentials and/or DB connection secrets out there in the open. So now we get to use the `dotenv` library. Add this to server.js to do so:
 
 ```javascript
 require('dotenv').config()
@@ -145,7 +147,7 @@ Calling on `config()` allows it to set up using the out-of-the-box configuration
 
 `ATLAS_CONNECTION = mongodb+srv://Hal:<Hal@testercluster.m7k7n.mongodb.net/TesterCluster?retryWrites=true&w=majority`
 
-Once that is saved, the dotenv library will read your .env file and add a key of "ATLAS_CONNECTION" to your process.env object, with the value of the correct URI there. Add this line into your server.js file:
+Once that is saved, the dotenv library will read your .env file and add a key of "ATLAS_CONNECTION" to your process.env object, with the value of the correct URI there. Remember that the process.env is globally available -- so all that remains is to add this line into your server.js file:
 
 ```javascript
 const source = process.env.ATLAS_CONNECTION
@@ -164,4 +166,4 @@ app.listen(PORT, ()=>{
 })
 ```
 
-This is just saying, "check if our process.env object has specified a port to use, and if not, default to using port 5000." Once you hit save, you should see the nodemon server reload in your terminal, and the second message confirming that our local server is working too. 
+The first line is saying, "check if our process.env object has specified a port to use, and if not, default to using port 5000." Once you hit save, you should see the nodemon server reload in your terminal, and the second message confirming that our local server is working too. 
