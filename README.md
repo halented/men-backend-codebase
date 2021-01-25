@@ -120,4 +120,6 @@ I realize that's a lot of unexplained code there, but we'll chat through it. The
 
 The second part, where we grab `mongoose.connection` out of the Mongoose library, is simply a listener. It listens your `connect` function, and throws up a little message on the server logs once that connection is successful. You can log whatever message you like. Maybe you just a put a Shakespeare quote on there or something. The world's your oyster. 
 
-Okay, so you may have noticed that `source` is not defined anywhere in our code yet, so let's fix that. 
+Okay, so you may have noticed that `source` is not defined anywhere in our code yet, so let's fix that. Head on over to the Atlas website again. It should have had plenty of time to finish setting up, so hopefully you see a screen that looks something like this:
+
+![Atlas Website Screenshot]('./assets/atlas-example.png') 
