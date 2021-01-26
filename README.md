@@ -222,3 +222,30 @@ module.exports = User
 Now we can move onto making some CRUD routes for the User. 
 
 ## Creating CRUD routes
+
+In keeping with my organizational choices, I'll now create a folder called `controllers` which houses the file `user.controller.js`. This will be the central hub for making any of the activity involving the User model; predictably, controlling what happens when you try to Create, Read, Update, or Delete a model instance. 
+
+There are two necessary items to import into this file. Since the User model is going to be needed repeatedly in here, we'll need that one. In addition, we will be using our express app to define some routes that will live on the local port. 
+
+```javascript
+const User = require('../models/user.model')
+const router = require('express').Router()
+```
+
+Take a look at that router import -- notice that every time you require the Router, you are calling on a function, which creates a totally new instance of the router within this file. So if we had more than one model, we would have the same code inside of its controller file, but that other router object would be totally different. We are going to define some changes to this instance of the router to make it specific to our User model, then export this instance of the router for the rest of our Express app to use. 
+
+With that said, let's lay down the boilerplate for the routes we need, and export it at the bottom.
+
+```javascript
+router.route('/new').post()
+
+router.route('/').get()
+
+router.route(':id/delete').delete()
+
+router.route(':id/update').post()
+
+module.exports = router
+```
+
+Now we can get to customizing those routes. Notice that you must first pass the path to the router's `route` method, then clarify what type of HTTP request will be made to that path. 
