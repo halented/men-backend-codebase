@@ -8,12 +8,12 @@ I've been a big fan of React for a while, but that part of the MERN stack isn't 
 
 Since this is focused on MERN without the R, the acronym we'll use for this post is MEN. Why not. Finally, MEN will be useful! 😄
 
-Here's the overview of the two part series. The steps in bold will be covered in this first installment: 
+Here's the overview of the walkthrough: 
 
-1. **Initializing a folder with a package manager**
-2. **Adding necessary dependencies (and discussing the purposes of each)**
-3. **Establishing a connection to MongoDB through [Atlas](https://www.mongodb.com/cloud/atlas)**
-4. **Establishing an Express application & selecting the local port on which to run it**
+1. Initializing a folder with a package manager
+2. Adding necessary dependencies (and discussing the purposes of each)
+3. Establishing a connection to MongoDB through [Atlas](https://www.mongodb.com/cloud/atlas)
+4. Establishing an Express application & selecting the local port on which to run it
 5. Creating A Model
 6. Creating CRUD routes for that model
 7. Testing your code out with an API tester like Postman or Insomnia
@@ -159,3 +159,66 @@ app.listen(PORT, ()=>{
 ```
 
 The first line is saying, "check if our process.env object has specified a port to use, and if not, default to using port 5000." Once you hit save, you should see the nodemon server reload in your terminal, and the second message confirming that our local server is working too. 
+
+
+## Creating A Model
+
+Organizationally, it is up to you how you arrange your files inside of this app. This sort of backend is not as opinionated as something like Ruby on Rails, so you can excerise a little more freedom with the structure. 
+
+To keep my files project organized, I like to keep related items in separate folders, so I'll firstly create a new folder named `models`, and nest a file called `user.model.js` inside of that. 
+
+This is where we will define the requirements of the data model that we intend to map to our database on MongoDB. Remember that we are using the Mongoose library as the messenger between our Express app and our database, so the first thing to do inside of this file is require Mongoose, and grab the Schema class out of the Mongoose library.
+
+```javascript
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+```
+
+Now we can begin to write the format for our User model, by creating a new instance of the Schema class. 
+
+```javascript
+const userSchema = new Schema()
+```
+
+The first argument for the schema is an object containing the attributes for your data model. Our user model will have 3 attributes: a username, an email, and an age (which is optional). Each attribute will be defined using a key:value pair, with the key being the name of the attribute, and the value being its type. You can check out all available schema types for Mongoose from [THIS](https://mongoosejs.com/docs/schematypes.html) page. We will just need the String and Number types. 
+
+```javascript
+const userSchema = new Schema({
+    username: String,
+    email: String,
+    age: Number
+})
+```
+
+This by itself would work, but remember that we wanted the age to be optional. Well, good news, it already is. The default for each model attribute sets `required` to `false`. So rather than specify that the age is optional, we should specify that the username and email are not. 
+
+```javascript
+const userSchema = new Schema({
+    username: { type: String, required: true },
+    email: { type: String, required: true },
+    age: Number
+})
+```
+
+We are allowed to open the value of any attribute out into a full object which specifies further detail for the attribute. For fun let's say you can't use our app unless you're 18 years or older, as well. 
+
+```javascript
+const userSchema = new Schema({
+    username: { type: String, required: true },
+    email: { type: String, required: true },
+    age: { type: Number, min: 18 }
+})
+```
+
+Validations: easy as that. Any time you make an instance of the user model, it'll run through this Schema to make sure your input attributes meet the requirements. 
+
+The last step is to solidify this Schema as a data model with mongoose, and export it from this file for use in other areas of our project. 
+
+```javascript
+const User = mongoose.model('User', userSchema)
+module.exports = User
+```
+
+Now we can move onto making some CRUD routes for the User. 
+
+## Creating CRUD routes
