@@ -248,4 +248,47 @@ router.route(':id/update').post()
 module.exports = router
 ```
 
-Now we can get to customizing those routes. Notice that you must first pass the path to the router's `route` method, then clarify what type of HTTP request will be made to that path. 
+Now we can get to customizing those routes. Notice that you must first pass the path to the router's `route` method, then clarify what type of HTTP request will be made to that path. The method, in the first case a `post`, will accept one argument: an function to run when this path is hit. We will use anonymous functions so that we can keep each route's functionality encapsulated in this one router.route call. 
+
+```javascript
+router.route('/new').post((req, res)=>{
+
+})
+```
+
+The function is atuomatically handed a few arguments: the request (`req`) information, and the response (`res`) information. Each argument has some built-in functionality that we will make use of here. If you have made POST requests before, you should be familiar with the format. Your frontend will make a request to your backend and send with it a `body` attribute which contains the information that is to be posted to the database. The `body` attribute should look something like this: `{ username: "Hal", email: "Halrulez@halgoogle.com", age: 247 }`. Using that information, we will make a new instance of our user model. 
+
+```javascript
+router.route('/new').post((req, res)=>{
+    const newUser = new User(req.body)
+})
+```
+
+This line will use our Mongoose model to create something that should be acceptable to our MongoDB database. The next step is to actually contact the database and try to save the new instace.  
+
+```javascript
+router.route('/new').post((req, res)=>{
+    const newUser = new User(req.body)
+
+    newUser.save()
+    .then(user => res.json(user))
+})
+```
+
+Assuming that the database entry is successful, MongoDB will send us back the newly minted User. There is one key difference between this user instance and the one we created called `newUser` -- the User that is sent back from MongoDB will have an ID, which we need to use to do all other sorts of operations on this User instance in the future. Once we receive this verified User instance, we use the line `res.json(user)` to complete the cycle by filling our response's json with the user itself.
+
+The code we wrote *should* work, but it is a little frail. We did not handle for the case that our new user gets rejected by the database, which could happen for a myriad of reasons. So let's add in some error handling before we move on:
+
+```javascript
+router.route('/new').post((req, res)=>{
+    const newUser = new User(req.body)
+
+    newUser.save()
+    .then(user => res.json(user))
+    .catch(err=> res.status(400).json("Error! " + err))
+})
+```
+
+And now, we can test it!
+
+## Testing your code out with an API tester like Postman or Insomnia

@@ -3,7 +3,13 @@ const User = require('../models/user.model')
 const router = require('express').Router()
 
 
-router.route('/new').post()
+router.route('/new').post((req, res)=>{
+    const newUser = new User(req.body)
+
+    newUser.save()
+    .then(user => res.json(user))
+    .catch(err=> res.status(400).json("Error! " + err))
+})
 
 router.route('/').get()
 
