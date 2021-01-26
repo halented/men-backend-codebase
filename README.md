@@ -241,9 +241,9 @@ router.route('/new').post()
 
 router.route('/').get()
 
-router.route(':id/delete').delete()
+router.route('/delete/:id').delete()
 
-router.route(':id/update').post()
+router.route('/update/:id').post()
 
 module.exports = router
 ```
@@ -271,7 +271,7 @@ router.route('/new').post((req, res)=>{
     const newUser = new User(req.body)
 
     newUser.save()
-    .then(user => res.json(user))
+        .then(user => res.json(user))
 })
 ```
 
@@ -280,12 +280,12 @@ Assuming that the database entry is successful, MongoDB will send us back the ne
 The code we wrote *should* work, but it is a little frail. We did not handle for the case that our new user gets rejected by the database, which could happen for a myriad of reasons. So let's add in some error handling before we move on:
 
 ```javascript
-router.route('/new').post((req, res)=>{
+router.route('/new').post((req, res) => {
     const newUser = new User(req.body)
 
     newUser.save()
-    .then(user => res.json(user))
-    .catch(err=> res.status(400).json("Error! " + err))
+        .then(user => res.json(user))
+        .catch(err => res.status(400).json("Error! " + err))
 })
 ```
 
@@ -311,3 +311,11 @@ Right now I happen to be using Insomnia, because the name's cool. Once you've go
 ![Successful Insomnia Post](./assets/insomnia-example.png)
 
 We got an ID! Massive success. 
+
+With the completion of this route, we have a working MEN backend. Of course, we need to complete filling out the other CRUD routes, but the hardest work of ensuring that Express, MongoDB, and Mongoose can chat nicely is over. Now might be another good time for a rousing glass of water.
+
+Since the rest of the routes are simply variations of the first one that we made, I'll put them all in one chunk together that we can look at as a whole:
+
+```javascript
+
+```

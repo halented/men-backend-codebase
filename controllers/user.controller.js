@@ -3,19 +3,29 @@ const User = require('../models/user.model')
 const router = require('express').Router()
 
 
-router.route('/new').post((req, res)=>{
+router.route('/new').post((req, res) => {
     const newUser = new User(req.body)
 
     newUser.save()
-    .then(user => res.json(user))
-    .catch(err=> res.status(400).json("Error! " + err))
+        .then(user => res.json(user))
+        .catch(err => res.status(400).json("Error! " + err))
 })
 
-router.route('/').get()
+router.route('/').get((req, res) => {
+    // using .find() without a paramter will match on all user instances
+    User.find()
+        .then(allUsers => res.json(allUsers))
+        .catch(err => res.status(400).json('Error! ' + err))
+})
 
-// mongoose method: deleteOne({id: req.params.id})
-router.route(':id/delete').delete()
+router.route('/delete/:id').delete((req, res) => {
+    User.deleteOne({ _id: req.params.id })
+        .then(success => res.json('Success! User deleted.'))
+        .catch(err => res.status(400).json('Error! ' + err))
+})
 
-router.route(':id/update').post()
+router.route('/update/:id').post((req, res) => {
+
+})
 
 module.exports = router
