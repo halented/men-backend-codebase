@@ -289,6 +289,25 @@ router.route('/new').post((req, res)=>{
 })
 ```
 
+Now that we have that written out, there's one more step before we can test it. As of right now, the Express app that we created inside server.js doesn't know anything about these model or controller files we've made. So we need to head back over to the server and tell it about our new code. 
+
+```javascript
+// inside server.js
+const userRoutes = require('./controllers/user.controller')
+app.use('/users', userRoutes)
+```
+
+By specifying that the app should use '/users', we are able to nest any routes that are defined in the user controller under the '/users' resource first. So in the case of creating a new user, our frontend should make a post request to 'http://localhost:5000/users/new'. 
+
 And now, we can test it!
 
 ## Testing your code out with an API tester like Postman or Insomnia
+
+I've used both of these apps and enjoy them each equally. No endorsement either way. They do things. 
+[HERE](https://www.postman.com/downloads/) is the link to the Postman tester, and [HERE](https://insomnia.rest/) is the link to the Insomnia one. 
+
+Right now I happen to be using Insomnia, because the name's cool. Once you've gotten all logged in to your tester, you should create a new request, specify that it is a POST request, copy `http://localhost:5000/users/new` into the resource section, and select JSON for the body type. Then you can add some raw JSON into the body -- this will match up with what you expect to see from the `body` portion that your frontend sends. So again something like `{ username: "Hal", email: "Halrulez@halgoogle.com", age: 247 }`. Then send the request! If you've got it all set up properly, you should see a response like this: 
+
+![Successful Insomnia Post](./assets/insomnia-example.png)
+
+We got an ID! Massive success. 
