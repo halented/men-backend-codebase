@@ -163,7 +163,7 @@ The first line is saying, "check if our process.env object has specified a port 
 
 ## Creating A Model
 
-Organizationally, it is up to you how you arrange your files inside of this app. This sort of backend is not as opinionated as something like Ruby on Rails, so you can excerise a little more freedom with the structure. 
+Organizationally, it is up to you how you arrange your files inside of this app. This sort of backend is not as opinionated as something like Ruby on Rails, so you can exercise a little more freedom with the structure. 
 
 To keep my files project organized, I like to keep related items in separate folders, so I'll firstly create a new folder named `models`, and nest a file called `user.model.js` inside of that. 
 
@@ -225,7 +225,7 @@ Now we can move onto making some CRUD routes for the User.
 
 In keeping with my organizational choices, I'll now create a folder called `controllers` which houses the file `user.controller.js`. This will be the central hub for making any of the activity involving the User model; predictably, controlling what happens when you try to Create, Read, Update, or Delete a model instance. 
 
-There are two necessary items to import into this file. Since the User model is going to be needed repeatedly in here, we'll need that one. In addition, we will be using our express app to define some routes that will live on the local port. 
+There are two necessary items to import into this file. Since the User model is going to be needed repeatedly in here, we'll need that one. In addition, we will be using express to define some routes that will live on the local port. 
 
 ```javascript
 const User = require('../models/user.model')
@@ -243,12 +243,12 @@ router.route('/').get()
 
 router.route('/delete/:id').delete()
 
-router.route('/update/:id').post()
+router.route('/update/:id').put()
 
 module.exports = router
 ```
 
-Now we can get to customizing those routes. Notice that you must first pass the path to the router's `route` method, then clarify what type of HTTP request will be made to that path. The method, in the first case a `post`, will accept one argument: an function to run when this path is hit. We will use anonymous functions so that we can keep each route's functionality encapsulated in this one router.route call. 
+Now we can get to customizing those routes. Notice that you must first pass the path to the router's `route` method, then clarify what type of HTTP method will be made to that path. The method, in the first case a `post`, will accept one argument: a function to run when this path is hit. We will use anonymous functions so that we can keep each route's functionality encapsulated in this one router.route call. 
 
 ```javascript
 router.route('/new').post((req, res)=>{
@@ -256,7 +256,7 @@ router.route('/new').post((req, res)=>{
 })
 ```
 
-The function is atuomatically handed a few arguments: the request (`req`) information, and the response (`res`) information. Each argument has some built-in functionality that we will make use of here. If you have made POST requests before, you should be familiar with the format. Your frontend will make a request to your backend and send with it a `body` attribute which contains the information that is to be posted to the database. The `body` attribute should look something like this: `{ username: "Hal", email: "Halrulez@halgoogle.com", age: 247 }`. Using that information, we will make a new instance of our user model. 
+The function is automatically handed a few arguments: the request (`req`) information, and the response (`res`) information. The request comes from your frontend (or Postman/Insomnia), and the response is what your backend should send in response. Each argument has some built-in functionality that we will make use of here. If you have made post requests before, you should be familiar with the format. Your frontend will make a request to your backend and send with it a `body` attribute which contains the information that is to be posted to the database. The `body` attribute should look something like this: `{ username: "Hal", email: "Halrulez@halgoogle.com", age: 247 }`. Using that information, we will make a new instance of our user model. 
 
 ```javascript
 router.route('/new').post((req, res)=>{
@@ -264,7 +264,7 @@ router.route('/new').post((req, res)=>{
 })
 ```
 
-This line will use our Mongoose model to create something that should be acceptable to our MongoDB database. The next step is to actually contact the database and try to save the new instace.  
+This line will use our Mongoose model to create something that should be acceptable to our MongoDB database. The next step is to actually contact the database and try to save the new instance.  
 
 ```javascript
 router.route('/new').post((req, res)=>{
@@ -289,7 +289,7 @@ router.route('/new').post((req, res) => {
 })
 ```
 
-Now that we have that written out, there's one more step before we can test it. As of right now, the Express app that we created inside server.js doesn't know anything about these model or controller files we've made. So we need to head back over to the server and tell it about our new code. 
+Now that we have that written out, there's one more step before we can test it. As of right now, the Express app that we created inside `server.js` doesn't know anything about these model or controller files we've made. So we need to head back over to the server and tell it about our new code. 
 
 ```javascript
 // inside server.js
@@ -317,5 +317,27 @@ With the completion of this route, we have a working MEN backend. Of course, we 
 Since the rest of the routes are simply variations of the first one that we made, I'll put them all in one chunk together that we can look at as a whole:
 
 ```javascript
+router.route('/').get((req, res) => {
+    // using .find() without a parameter will match on all user instances
+    User.find()
+        .then(allUsers => res.json(allUsers))
+        .catch(err => res.status(400).json('Error! ' + err))
+})
 
+router.route('/delete/:id').delete((req, res) => {
+    User.deleteOne({ _id: req.params.id })
+        .then(success => res.json('Success! User deleted.'))
+        .catch(err => res.status(400).json('Error! ' + err))
+})
+
+router.route('/update/:id').put((req, res) => {
+    User.findByIdAndUpdate(req.params.id, req.body)
+        .then(user => res.json('Success! User updated.'))
+        .catch(err => res.status(400).json('Error! ' + err))
+})
 ```
+
+Some items to pay attention to: 
+- You can retrieve the ID from the request URL by accessing req.params
+- The update method requires the frontend request to include information for *all* fields aside from the id -- this is the most straightforward way of updating our database at the present
+- You're in full control of what response is sent back to the frontend. If you wanted to hide the server errors for security reasons, all you would have to do is change what your `catch` sends back. 
