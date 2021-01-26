@@ -24,8 +24,10 @@ router.route('/delete/:id').delete((req, res) => {
         .catch(err => res.status(400).json('Error! ' + err))
 })
 
-router.route('/update/:id').post((req, res) => {
-
+router.route('/update/:id').put((req, res) => {
+    User.findByIdAndUpdate(req.params.id, req.body)
+        .then(user => res.json('Success! User updated.'))
+        .catch(err => res.status(400).json('Error! ' + err))
 })
 
 module.exports = router
