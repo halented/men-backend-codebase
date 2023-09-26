@@ -4,9 +4,9 @@
 
 __
 
-I've been a big fan of React for a while, but that part of the MERN stack isn't involved in this post. If anyone does have a specific question about how to the backend we are about to build up with a React frontend, please leave a comment and I would be happy to make a new post with that information as well.
+I've been a big fan of React for a while, but that part of the MERN stack isn't involved in this post. If anyone does have a specific question about how to hook the backend we are about to build up with a React frontend, please leave a comment and I would be happy to make a new post with that information as well.
 
-Since this is focused on MERN without the R, the acronym we'll use for this post is MEN. Why not. Finally, MEN will be useful! 😄
+Since this is focused on MERN without the R, the acronym we'll use for this post is MEN. Why not. 😄
 
 Here's the overview of the walkthrough: 
 
